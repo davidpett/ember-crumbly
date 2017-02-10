@@ -27,6 +27,11 @@ export default Component.extend({
   hasBlock: bool('template').readOnly(),
   currentUrl: readOnly('applicationRoute.router.url'),
   currentRouteName: readOnly('applicationRoute.controller.currentRouteName'),
+  minimumLength: 0,
+
+  showCrumbs: computed('routeHierarchy.length', 'minimumLength', function() {
+    return get(this, 'routeHierarchy.length') >= get(this, 'minimumLength');
+  }),
 
   routeHierarchy: computed('currentUrl', 'currentRouteName', 'reverse', {
     get() {
@@ -42,7 +47,7 @@ export default Component.extend({
     }
   }).readOnly(),
 
-  breadCrumbClass: computed('outputStyle', {
+  breadCrumbClass: computed('showCrumbs', 'outputStyle', {
     get() {
       let className = 'breadcrumb';
       const outputStyle = getWithDefault(this, 'outputStyle', '');
@@ -51,7 +56,9 @@ export default Component.extend({
       if (lowerCaseOutputStyle === 'foundation') {
         className = 'breadcrumbs';
       }
-
+      if (!get(this, 'showCrumbs')) {
+        className = '';
+      }
       return className;
     }
   }).readOnly(),
